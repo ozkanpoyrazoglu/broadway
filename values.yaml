@@ -1,0 +1,125 @@
+# Broadway Application Helm Chart Values
+
+# Specify the image repository and tag for the Broadway application
+image:
+  repository: your-repo/broadway-app
+  tag: latest
+
+# Specify the number of replicas for the Broadway application
+replicaCount: 1
+
+# Configure resource limits and requests for the Broadway pods
+resources:
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+  requests:
+    cpu: "200m"
+    memory: "256Mi"
+
+# Specify the service type for the Broadway application
+service:
+  type: ClusterIP
+
+# Configure ingress settings if applicable
+ingress:
+  enabled: false
+  annotations: {}
+  hosts:
+    - host: example.com
+      paths: []
+
+# Specify the port for the Broadway application service
+servicePort: 80
+
+# Configure environment variables for the Broadway application
+env:
+  - name: ENV_VAR_NAME
+    value: "your-value"
+
+# Configure additional environment variables from ConfigMaps or Secrets
+envFrom:
+  - configMapRef:
+      name: config-map-name
+  - secretRef:
+      name: secret-name
+
+# Specify the namespace for deploying the Broadway application
+namespace: default
+
+# Configure liveness and readiness probes
+probes:
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 15
+    periodSeconds: 10
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 5
+
+# Specify any additional Kubernetes labels for the deployment
+labels: {}
+
+# Configure pod annotations
+annotations: {}
+
+# Specify nodeSelector and tolerations if needed
+nodeSelector: {}
+tolerations: []
+
+# Configure affinity rules if needed
+affinity: {}
+
+# Specify custom resources if required
+customResources: {}
+
+# Specify the service account to be used by the Broadway application
+serviceAccount:
+  create: true
+  name: ""
+
+# Configure RBAC settings if needed
+rbac:
+  create: true
+
+# Specify image pull policy
+imagePullPolicy: IfNotPresent
+
+# Configure pod security context
+securityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+
+# Configure container security context
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+
+# Specify a custom config file for the Broadway application
+configFile: ""
+
+# Specify any additional Helm chart dependencies
+dependencies: []
+
+# Configure tolerations and affinity for Prometheus monitoring if needed
+prometheus:
+  enabled: false
+  serviceMonitor:
+    enabled: false
+    additionalLabels: {}
+
+# Specify custom network policies if required
+networkPolicies: []
+
+# Configure persistence settings if your application requires storage
+persistence:
+  enabled: false
+  accessMode: ReadWriteOnce
+  size: 1Gi
+  storageClass: ""
+
+# Specify additional resources like ConfigMaps, Secrets, etc.
+additionalResources: []
+
+# Specify any additional Helm hooks or templates
+hooks: {}

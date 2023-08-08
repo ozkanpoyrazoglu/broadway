@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deploy.name }}-deployment
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.deploy.name }}
+spec:
+  replicas: {{ .Values.deploy.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.deploy.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.deploy.name }}
+    spec:
+{{- if .Values.deploy.nodeselector }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: beta.kubernetes.io/instance-type
+                operator: {{ .Values.deploy.InOrNotIn }}
+                values:
+                - {{ .Values.deploy.nodeselectorvalue }}
+{{- end }}
+      containers:
+      - name: {{ .Values.deploy.name }}
+{{- if .Values.configmap.enabled }}
+        envFrom:
+        - configMapRef:
+            name: {{ .Values.configmap.name }}
+{{- end }}
+        image: {{ .Values.deploy.registry }}/{{ .Values.deploy.image }}:{{ .Values.deploy.tag }}
+        imagePullPolicy: Always
+{{- if .Values.deploy.resources.enabled }}
+        resources:
+          requests:
+            cpu: {{ .Values.deploy.resources.requestCpu }}
+            memory: {{ .Values.deploy.resources.requestMemory }}
+          limits:
+            cpu: {{ .Values.deploy.resources.limitCpu }}
+            memory: {{ .Values.deploy.resources.limitMemory }}
+{{- end }}
+{{- if .Values.probe.enabled }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.probe.pathreadiness }}
+            port: {{ .Values.probe.port }}  
+          initialDelaySeconds: {{ .Values.probe.initialDelaySeconds }}
+          timeoutSeconds: {{ .Values.probe.timeoutSeconds }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.probe.pathliveness }}
+            port: {{ .Values.probe.port }} 
+          failureThreshold: {{ .Values.probe.failureThreshold }}
+          periodSeconds: {{ .Values.probe.periodSeconds }}
+          initialDelaySeconds: {{ .Values.probe.initialDelaySeconds }}
+          timeoutSeconds: {{ .Values.probe.timeoutSeconds }}
+{{- end }}
+        ports:
+        - containerPort: {{ .Values.deploy.port }}
+        volumeMounts:
+{{- if .Values.configmap.appsettings.enabled }}
+        - mountPath: /app/appsettings.json
+          name: appsettings
+          subPath: appsettings.json
+{{- end }}
+{{- if .Values.configmap.nlog.enabled }}
+        - mountPath: /app/nlog.config
+          name: nlog
+          subPath: nlog.config
+{{- end }}
+{{- if .Values.configmap.env.enabled }}
+        - mountPath: /app/.env
+          name: env
+          subPath: .env
+{{- end }}
+{{- if .Values.configmap.envproduction.enabled }}
+        - mountPath: /app/.env.production
+          name: env-production
+          subPath: .env.production
+{{- end }}
+      restartPolicy: Always
+      volumes:
+{{- if .Values.configmap.appsettings.enabled }}
+      - configMap:
+          name: {{ .Values.configmap.name }}
+        name: appsettings
+{{- end }}
+{{- if .Values.configmap.nlog.enabled }}
+      - configMap:
+          name: {{ .Values.configmap.name }}
+        name: nlog
+{{- end }}
+{{- if .Values.configmap.env.enabled }}
+      - configMap:
+          name: {{ .Values.configmap.name }}
+        name: env
+{{- end }}
+{{- if .Values.configmap.envproduction.enabled }}
+      - configMap:
+          name: {{ .Values.configmap.name }}
+        name: env-production
+{{- end }}
