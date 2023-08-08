@@ -2,13 +2,18 @@
 
 # Specify the image repository and tag for the Broadway application
 image:
-  repository: your-repo/broadway-app
-  tag: latest
+  repository: ozkanpoyrazoglu/broadway
+  tag: 0.0.1
 
 # Specify the number of replicas for the Broadway application
 replicaCount: 1
 
+# Specify application name if you want to customize it
+
+appname: broadway-api
+
 # Configure resource limits and requests for the Broadway pods
+resourcesEnabled: true
 resources:
   limits:
     cpu: "500m"
@@ -20,6 +25,7 @@ resources:
 # Specify the service type for the Broadway application
 service:
   type: ClusterIP
+  containerPort: 8080
 
 # Configure ingress settings if applicable
 ingress:
@@ -37,24 +43,26 @@ env:
   - name: ENV_VAR_NAME
     value: "your-value"
 
+
 # Configure additional environment variables from ConfigMaps or Secrets
+configmapEnabled: true
 envFrom:
-  - configMapRef:
-      name: config-map-name
-  - secretRef:
-      name: secret-name
+  configMapRef:
+    name: config-map-name
+
 
 # Specify the namespace for deploying the Broadway application
 namespace: default
 
 # Configure liveness and readiness probes
+probeEnabled: true
 probes:
   livenessProbe:
-    enabled: true
+    enabled: false
     initialDelaySeconds: 15
     periodSeconds: 10
   readinessProbe:
-    enabled: true
+    enabled: false
     initialDelaySeconds: 5
     periodSeconds: 5
 
@@ -100,26 +108,3 @@ configFile: ""
 
 # Specify any additional Helm chart dependencies
 dependencies: []
-
-# Configure tolerations and affinity for Prometheus monitoring if needed
-prometheus:
-  enabled: false
-  serviceMonitor:
-    enabled: false
-    additionalLabels: {}
-
-# Specify custom network policies if required
-networkPolicies: []
-
-# Configure persistence settings if your application requires storage
-persistence:
-  enabled: false
-  accessMode: ReadWriteOnce
-  size: 1Gi
-  storageClass: ""
-
-# Specify additional resources like ConfigMaps, Secrets, etc.
-additionalResources: []
-
-# Specify any additional Helm hooks or templates
-hooks: {}

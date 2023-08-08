@@ -1,50 +1,39 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.deploy.name }}-deployment
+  name: {{ .Values.appname }}-deployment
   namespace: {{ .Values.namespace }}
   labels:
-    app: {{ .Values.deploy.name }}
+    app: {{ .Values.appname }}
 spec:
-  replicas: {{ .Values.deploy.replicas }}
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Values.deploy.name }}
+      app: {{ .Values.appname }}
   template:
     metadata:
       labels:
-        app: {{ .Values.deploy.name }}
+        app: {{ .Values.appname }}
     spec:
-{{- if .Values.deploy.nodeselector }}
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: beta.kubernetes.io/instance-type
-                operator: {{ .Values.deploy.InOrNotIn }}
-                values:
-                - {{ .Values.deploy.nodeselectorvalue }}
-{{- end }}
       containers:
-      - name: {{ .Values.deploy.name }}
-{{- if .Values.configmap.enabled }}
+      - name: {{ .Values.appname }}
+{{- if .Values.configmapEnabled.enabled }}
         envFrom:
         - configMapRef:
-            name: {{ .Values.configmap.name }}
+            name: {{ .Values.envFrom.configMapRef.name }}
 {{- end }}
-        image: {{ .Values.deploy.registry }}/{{ .Values.deploy.image }}:{{ .Values.deploy.tag }}
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
         imagePullPolicy: Always
-{{- if .Values.deploy.resources.enabled }}
+{{- if .Values.resourcesEnabled.enabled }}
         resources:
           requests:
-            cpu: {{ .Values.deploy.resources.requestCpu }}
-            memory: {{ .Values.deploy.resources.requestMemory }}
+            cpu: {{ .Values.resources.requests.cpu}}
+            memory: {{ .Values.resources.requests.memory }}
           limits:
-            cpu: {{ .Values.deploy.resources.limitCpu }}
-            memory: {{ .Values.deploy.resources.limitMemory }}
+            cpu: {{ .Values.resources.limits.cpu }}
+            memory: {{ .Values.resources.limits.memory }}
 {{- end }}
-{{- if .Values.probe.enabled }}
+{{- if .Values.probeEnabled.enabled }}
         readinessProbe:
           httpGet:
             path: {{ .Values.probe.pathreadiness }}
@@ -61,47 +50,4 @@ spec:
           timeoutSeconds: {{ .Values.probe.timeoutSeconds }}
 {{- end }}
         ports:
-        - containerPort: {{ .Values.deploy.port }}
-        volumeMounts:
-{{- if .Values.configmap.appsettings.enabled }}
-        - mountPath: /app/appsettings.json
-          name: appsettings
-          subPath: appsettings.json
-{{- end }}
-{{- if .Values.configmap.nlog.enabled }}
-        - mountPath: /app/nlog.config
-          name: nlog
-          subPath: nlog.config
-{{- end }}
-{{- if .Values.configmap.env.enabled }}
-        - mountPath: /app/.env
-          name: env
-          subPath: .env
-{{- end }}
-{{- if .Values.configmap.envproduction.enabled }}
-        - mountPath: /app/.env.production
-          name: env-production
-          subPath: .env.production
-{{- end }}
-      restartPolicy: Always
-      volumes:
-{{- if .Values.configmap.appsettings.enabled }}
-      - configMap:
-          name: {{ .Values.configmap.name }}
-        name: appsettings
-{{- end }}
-{{- if .Values.configmap.nlog.enabled }}
-      - configMap:
-          name: {{ .Values.configmap.name }}
-        name: nlog
-{{- end }}
-{{- if .Values.configmap.env.enabled }}
-      - configMap:
-          name: {{ .Values.configmap.name }}
-        name: env
-{{- end }}
-{{- if .Values.configmap.envproduction.enabled }}
-      - configMap:
-          name: {{ .Values.configmap.name }}
-        name: env-production
-{{- end }}
+        - containerPort: {{ .Values.service.containerPort }}
