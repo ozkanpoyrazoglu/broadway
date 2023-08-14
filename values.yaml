@@ -3,7 +3,7 @@
 # Specify the image repository and tag for the Broadway application
 image:
   repository: ozkanpoyrazoglu/broadway
-  tag: 0.0.1
+  tag: 0.0.2
 
 # Specify the number of replicas for the Broadway application
 replicaCount: 1
@@ -51,6 +51,12 @@ env:
     value: "8080"
   - name: "APP_SELECTOR"
     value: "app=nginx-test"
+  - name: "WORKER_COUNT"
+    value: "1"
+  - name: "THREAD_COUNT"
+    value: "1"
+  - name: "TIMEOUT"
+    value: "600"
 
 # Configure additional environment variables from ConfigMaps or Secrets
 configmap: 
