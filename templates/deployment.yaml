@@ -15,6 +15,7 @@ spec:
       labels:
         app: {{ .Values.appname }}
     spec:
+      serviceAccountName: {{ .Values.serviceAccountName }}
       containers:
       - name: {{ .Values.appname }}
 {{- if .Values.configmap.enabled }}
@@ -24,12 +25,10 @@ spec:
 {{- end }}
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
         imagePullPolicy: Always
-        serviceAccount: {{ .Values.serviceAccountName }}
-        serviceAccountName: {{ .Values.serviceAccountName }}
         env:
           {{- range .Values.env }}       
           - name: {{ .name }}
-            value: {{ .value }}
+            value: "{{ .value }}"
           {{- end }} 
 {{- if .Values.resources.enabled }}
         resources:

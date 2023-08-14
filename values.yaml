@@ -47,14 +47,14 @@ servicePort: 80
 
 # Configure environment variables for the Broadway application
 env:
-  - name: EXPOSE_PORT
+  - name: "EXPOSE_PORT"
     value: "8080"
-  - name: APP_SELECTOR
+  - name: "APP_SELECTOR"
     value: "app=nginx-test"
 
 # Configure additional environment variables from ConfigMaps or Secrets
 configmap: 
-  enabled: true
+  enabled: false
 envFrom:
   configMapRef:
     name: config-map-name
