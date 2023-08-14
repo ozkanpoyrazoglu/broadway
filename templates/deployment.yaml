@@ -17,14 +17,21 @@ spec:
     spec:
       containers:
       - name: {{ .Values.appname }}
-{{- if .Values.configmapEnabled.enabled }}
+{{- if .Values.configmap.enabled }}
         envFrom:
         - configMapRef:
             name: {{ .Values.envFrom.configMapRef.name }}
 {{- end }}
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
         imagePullPolicy: Always
-{{- if .Values.resourcesEnabled.enabled }}
+        serviceAccount: {{ .Values.serviceAccountName }}
+        serviceAccountName: {{ .Values.serviceAccountName }}
+        env:
+          {{- range .Values.env }}       
+          - name: {{ .name }}
+            value: {{ .value }}
+          {{- end }} 
+{{- if .Values.resources.enabled }}
         resources:
           requests:
             cpu: {{ .Values.resources.requests.cpu}}
@@ -33,21 +40,5 @@ spec:
             cpu: {{ .Values.resources.limits.cpu }}
             memory: {{ .Values.resources.limits.memory }}
 {{- end }}
-{{- if .Values.probeEnabled.enabled }}
-        readinessProbe:
-          httpGet:
-            path: {{ .Values.probe.pathreadiness }}
-            port: {{ .Values.probe.port }}  
-          initialDelaySeconds: {{ .Values.probe.initialDelaySeconds }}
-          timeoutSeconds: {{ .Values.probe.timeoutSeconds }}
-        livenessProbe:
-          httpGet:
-            path: {{ .Values.probe.pathliveness }}
-            port: {{ .Values.probe.port }} 
-          failureThreshold: {{ .Values.probe.failureThreshold }}
-          periodSeconds: {{ .Values.probe.periodSeconds }}
-          initialDelaySeconds: {{ .Values.probe.initialDelaySeconds }}
-          timeoutSeconds: {{ .Values.probe.timeoutSeconds }}
-{{- end }}
         ports:
-        - containerPort: {{ .Values.service.containerPort }}
+        - containerPort: {{ .Values.svc.containerPort }}

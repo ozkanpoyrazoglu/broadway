@@ -2,14 +2,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.svc.name }}-service
+  name: {{ .Values.svc.name }}
   namespace: {{ .Values.namespace }}
 spec:
   selector:
-    app: {{ .Values.deploy.name }}
+    app: {{ .Values.appname }}
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: {{ .Values.deploy.targetport }}
+      port: {{ .Values.servicePort }}
+      targetPort: {{ .Values.svc.containerPort }}
   type: NodePort
 {{- end }}
